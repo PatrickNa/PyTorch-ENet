@@ -33,6 +33,15 @@ Apart from the datasets mentioned above you can train the model with your own da
 ```python
 color_encoding = OrderedDict([('unlabeled', (0, 0, 0)), ('road', (0, 255, 0))])
 ```
+- Add your dataset as argument option to `main.py`. In the following example a model referred to as *kitti* is added.
+```python
+if args.dataset.lower() == 'camvid':
+    from data import CamVid as dataset
+elif args.dataset.lower() == 'cityscapes':
+    from data import Cityscapes as dataset
+elif args.dataset.lower() == 'kitti':
+    from data import Kitti as dataset
+```
 
 Once the directory, the data-file and the data itself are prepared the model can be trained as described for *camvid* and *cityscapes*. Example for training with KITTI data with only one class apart from *unlabeled*:
 
