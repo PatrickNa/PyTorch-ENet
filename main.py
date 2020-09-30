@@ -73,7 +73,7 @@ def load_dataset(dataset):
     test_loader = data.DataLoader(
         test_set,
         batch_size=args.batch_size,
-        shuffle=False,
+        shuffle=True,
         num_workers=args.workers)
 
     # Get encoding between pixel valus in label images and RGB colors
