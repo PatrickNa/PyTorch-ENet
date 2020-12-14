@@ -1,4 +1,5 @@
 import os
+import random
 
 import torch
 import torch.nn as nn
@@ -31,8 +32,17 @@ def load_dataset(dataset):
     print("Dataset directory:", args.dataset_dir)
     print("Save directory:", args.save_dir)
 
+    brightness_transform = [transforms.Lambda(lambda x: transforms.functional.adjust_brightness(x, random.uniform(1, 2)))]
+    contrast_transform = [transforms.Lambda(lambda x: transforms.functional.adjust_contrast(x, random.uniform(1, 2)))]
+
     image_transform = transforms.Compose(
         [transforms.Resize((args.height, args.width)),
+         transforms.ToTensor()])
+
+    image_transform = transforms.Compose(
+        [transforms.Resize((args.height, args.width)),
+         transforms.RandomApply(brightness_transform, p=0.3),
+         transforms.RandomApply(contrast_transform, p=0.3),
          transforms.ToTensor()])
 
     label_transform = transforms.Compose([
@@ -207,6 +217,7 @@ def train(train_loader, val_loader, class_weights, class_encoding):
             # Save the model if it's the best thus far
             if miou > best_miou:
                 print("\nBest model thus far. Saving...\n")
+                print("Previous best {}. New best {}".format(best_miou, miou))
                 best_miou = miou
                 utils.save_checkpoint(model, optimizer, epoch + 1, best_miou,
                                       args)
