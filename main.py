@@ -160,6 +160,7 @@ def train(train_loader, val_loader, class_weights, class_encoding):
     # frequentely used in classification problems with multiple classes which
     # fits the problem. This criterion  combines LogSoftMax and NLLLoss.
     criterion = nn.CrossEntropyLoss(weight=class_weights)
+    #criterion = nn.BCEWithLogitsLoss(weight=class_weights)
 
     # ENet authors used Adam as the optimizer
     optimizer = optim.Adam(
@@ -195,8 +196,8 @@ def train(train_loader, val_loader, class_weights, class_encoding):
     for epoch in range(start_epoch, args.epochs):
         print(">>>> [Epoch: {0:d}] Training".format(epoch))
 
-        lr_updater.step()
         epoch_loss, (iou, miou) = train.run_epoch(args.print_step)
+        # lr_updater.step()
 
         print(">>>> [Epoch: {0:d}] Avg. loss: {1:.4f} | Mean IoU: {2:.4f}".
               format(epoch, epoch_loss, miou))
@@ -210,6 +211,7 @@ def train(train_loader, val_loader, class_weights, class_encoding):
                   format(epoch, loss, miou))
 
             # Print per class IoU on last epoch or if best iou
+            # if epoch + 1 == args.epochs or miou > best_miou:
             if epoch + 1 == args.epochs or miou > best_miou:
                 for key, class_iou in zip(class_encoding.keys(), iou):
                     print("{0}: {1:.4f}".format(key, class_iou))
@@ -301,12 +303,15 @@ if __name__ == '__main__':
         from data import CamVid as dataset
     elif args.dataset.lower() == 'cityscapes':
         from data import Cityscapes as dataset
+    elif args.dataset.lower() == 'kitti':
+        from data import Kitti as dataset
     else:
         # Should never happen...but just in case it does
         raise RuntimeError("\"{0}\" is not a supported dataset.".format(
             args.dataset))
 
     loaders, w_class, class_encoding = load_dataset(dataset)
+
     train_loader, val_loader, test_loader = loaders
 
     if args.mode.lower() in {'train', 'full'}:
